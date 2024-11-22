@@ -10,6 +10,7 @@ public class TaskThread extends Thread{
     }
 
     public void run(int allottedBurst, int coreID) {
+        //acquire()
         try {
             int a = allottedBurst + this.currentBurstTime;
 
