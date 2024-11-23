@@ -94,17 +94,31 @@ class Dispatcher implements Runnable {
 
         } else if (algorithm.equals("RR")) {
 
-            return readyQueue.remove(0); // Round-robin (simplified for demonstration)
+            // Implement Round Robin logic, managing time quantums
+
+            // Pseudo code example:
+
+            Task task = (Task) readyQueue.remove(0);
+
+            // Perform task execution for a time quantum
+
+            return task;
 
         } else if (algorithm.equals("NSJF")) {
 
-            return readyQueue.stream()
+            // Select the task with the shortest burst time
+
+            Task shortestTask = readyQueue.stream()
 
                     .map(task -> (Task) task)
 
                     .min(Comparator.comparingInt(Task::getBurstTime))
 
-                    .orElse(null); // Non-preemptive shortest job first
+                    .orElse(null);
+
+            if (shortestTask != null) readyQueue.remove(shortestTask);
+
+            return shortestTask;
 
         }
 
