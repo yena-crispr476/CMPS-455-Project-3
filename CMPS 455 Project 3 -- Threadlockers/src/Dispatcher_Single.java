@@ -56,14 +56,18 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     public void displayQueue_i () {
         System.out.println("----------Ready Queue----------");
-        for (int i = 0; i < ready_Queue.size(); i++) {
-            System.out.println("ID: "+ i + " Max Burst: " + taskthread.getMaxBurstTime() + " Current Burst: " + taskthread.getCurrentBurstTime());
+        int i = 0;
+        for (TaskThread task: ready_Queue) {
+            System.out.println("Id: " + i + " Max Burst " + task.getMaxBurstTime() + " Current Burst: " + task.getCurrentBurstTime());
+            i++;
         }
+
     }
     
     @Override
     public void run() {
         threadCreation();
+        displayQueue_i();
         int algorithmNumber = 0;
         switch (algorithmNumber) {
             case 1:
