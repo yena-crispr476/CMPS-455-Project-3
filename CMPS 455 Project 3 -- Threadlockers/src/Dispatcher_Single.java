@@ -7,8 +7,8 @@ import java.util.concurrent.Semaphore;
 public class Dispatcher_Single implements Runnable{         // Will act as the ready queue for the algorithms. Must be Semaphore or lock protected.
                                                             // TaskThread will act as a "CPU"
 
-    int clockCycles;
-    int burstTime;
+    private int algorithm_Choice;
+    private int timeQuantum;
     private static int quantum;
     static Semaphore queueSem = new Semaphore(1);
     static Semaphore processSem = new Semaphore(1);
@@ -18,7 +18,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     static Queue<TaskThread> ready_Queue = new LinkedList<>();
 
-    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem) {
+    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem, int algorithm) {
         this.ready_Queue = queue;
         this.quantum = quantum;
         this.queueSem = sem;
@@ -56,15 +56,6 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                 System.out.println("The FCFS algorithm couldn't execute completely");
             }
 
-
-            // One instance in the queue
-                /*queueSem.acquireUninterruptibly();  // Aquire Semaphore for queue
-                ready_Queue.peek(); //Peeks at the item to get the information before removing
-                System.out.println("Proc. Thread " + task.getID()+  " \t | On CPU: 0, MB= " + task.getMaxBurstTime() + ", CB= " + ready_Queue.peek().getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime() );
-                if (task != null) {
-                    task.run(task.getMaxBurstTime(), 0);
-                }*/
-
         }
         System.out.println("Main Thread \t | Exiting");
     }
@@ -96,20 +87,6 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                 }
 
 
-
-               /* for (int i = 0; i < (timeQuantum); i++) {
-                    *//*System.out.println("Proc. Thread " + task.getID() +
-                            "\t | Using CPU 0; On Burst " + task.getCurrentBurstTime() + ".");*//*
-                    task.run(timeQuantum, 0);
-                    if (task.getCurrentBurstTime() < task.getMaxBurstTime()) {
-                        ready_Queue.add(task); // Re-add task to the queue if incomplete
-                    } else {
-                        System.out.println("Proc. Thread " + task.getID() + "\t | Completed execution.");
-                    }
-                    queueSem.release();
-                }*/
-                ;
-
             } catch (Exception e) {
                 System.out.println();
             }
@@ -117,7 +94,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
     }
 
     public void threadCreation () {
-        int tID;  // Thread ID
+
         int burstTime;                  // Random between 1,50
         int numThreads;                 // Random between 1, 25
 
@@ -136,34 +113,48 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
     }
 
     public void displayQueue_i () {
-        System.out.println("----------Ready Queue----------");
+        System.out.println("----------Ready Queue-----------");
         int i = 0;
         for (TaskThread task: ready_Queue) {
             System.out.println("Id: " + i + " Max Burst " + task.getMaxBurstTime() + " Current Burst: " + task.getCurrentBurstTime());
             i++;
         }
+        System.out.println("--------------------------------");
 
     }
     
     @Override
     public void run() {
-        threadCreation();
+        //threadCreation();
+        reportThreadCreation();
         System.out.println();
         displayQueue_i();
         System.out.println();
         int algorithmNumber = 2;
         switch (algorithmNumber) {
             case 1:
+                long start_FCFS = System.currentTimeMillis();
                 FCFS_Single();
+                long end_FCFS = System.currentTimeMillis();
+                System.out.println("Total Completion Time: " + (end_FCFS - start_FCFS) + " milli-seconds.");
                 break;
             case 2:
-                RR_Single(3);
+                long start_RR = System.currentTimeMillis();
+                RR_Single(5);
+                long end_RR = System.currentTimeMillis();
+                System.out.println("Total Completion Time: " + (end_RR - start_RR) + " milli-seconds.");
                 break;
             case 3:
+                long start_NPSJF = System.currentTimeMillis();
                 // NPSJF
+                long end_NPSJF = System.currentTimeMillis();
+                System.out.println("Total Completion Time: " + (end_NPSJF - start_NPSJF) + " milli-seconds.");
                 break;
             case 4:
-                //PSJF
+                long start_PSJF = System.currentTimeMillis();
+                // PSJF
+                long end_PSJF = System.currentTimeMillis();
+                System.out.println("Total Completion Time: " + (end_PSJF - start_PSJF) + " milli-seconds.");
             default:
                 System.out.println("");
         }
@@ -174,5 +165,43 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         Dispatcher_Single test = new Dispatcher_Single(ready_Queue, quantum, queueSem);
         Thread t = new Thread(test);
         t.start();
+    }
+
+    public void reportThreadCreation () {
+        int burstTime;
+        int timeQuantum = 5;
+
+        TaskThread t1 = new TaskThread(1, 18);
+        TaskThread t2 = new TaskThread(2, 7);
+        TaskThread t3 = new TaskThread(3, 25);
+        TaskThread t4 = new TaskThread(4, 42);
+        TaskThread t5 = new TaskThread(5, 21);
+
+        Thread uno = new Thread(t1);
+        Thread dos = new Thread(t2);
+        Thread tres = new Thread(t3);
+        Thread quatro = new Thread(t4);
+        Thread cinco = new Thread(t5);
+
+        uno.start();
+        dos.start();
+        tres.start();
+        quatro.start();
+        cinco.start();
+
+        ready_Queue.add(t1);
+        ready_Queue.add(t2);
+        ready_Queue.add(t3);
+        ready_Queue.add(t4);
+        ready_Queue.add(t5);
+
+        System.out.println("Main Thread \t | Creating process thread " + 1);
+        System.out.println("Main Thread \t | Creating process thread " + 2);
+        System.out.println("Main Thread \t | Creating process thread " + 3);
+        System.out.println("Main Thread \t | Creating process thread " + 4);
+        System.out.println("Main Thread \t | Creating process thread " + 5);
+
+
+
     }
 }
