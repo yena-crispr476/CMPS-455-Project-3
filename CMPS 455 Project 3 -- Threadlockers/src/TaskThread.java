@@ -20,7 +20,7 @@ public class TaskThread extends Thread{
                 }
 
                 ++this.currentBurstTime;
-                System.out.println("Using CPU:" + coreID + "; Task " + this.id + " ran on burst " + this.currentBurstTime);
+                System.out.println("Proc. Thread " + this.id + "\t | Using CPU:" + coreID + "; Task " + this.id + " ran on burst " + this.currentBurstTime);
             }
 
             this.isComplete = true;
