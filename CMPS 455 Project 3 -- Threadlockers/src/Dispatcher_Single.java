@@ -8,7 +8,6 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                                                             // TaskThread will act as a "CPU"
 
     private int algorithm_Choice;
-    private int timeQuantum;
     private static int quantum;
     static Semaphore queueSem = new Semaphore(1);
     static Semaphore processSem = new Semaphore(1);
@@ -18,7 +17,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     static Queue<TaskThread> ready_Queue = new LinkedList<>();
 
-    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem, int algorithm) {
+    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem /*int algorithm*/) {
         this.ready_Queue = queue;
         this.quantum = quantum;
         this.queueSem = sem;
