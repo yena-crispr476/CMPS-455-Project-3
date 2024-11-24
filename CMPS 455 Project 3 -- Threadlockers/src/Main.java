@@ -1,19 +1,19 @@
 public class Main {
     public static void main(String[] args) {
 
-        try{
-            if(args[0].equals("-S")){
-                if (args.length==1){
+        try {
+            if (args[0].equals("-S")) {
+                if (args.length == 1) {
                     System.out.println("invalid input...");
                     return;
                 }
-                switch(args[1]){
+                switch (args[1]) {
                     case "1":
                         //algToUse = Statics.algorithm.FCFS;
                         break;
                     case "2":
                         //algToUse = Statics.algorithm.RR;
-                        if(args[3].equals("-C")){
+                        if (args[3].equals("-C")) {
                             //quantumTime = Integer.parseInt(args[2]);
                             //coresToUse = Integer.parseInt(args[4]);
                         }
@@ -33,29 +33,28 @@ public class Main {
                     default:
                         System.out.println("Wrong Input for Task #");
                 }
-                if (args.length>2){
-                    if(args[2].equals("-C")) {
+                if (args.length > 2) {
+                    if (args[2].equals("-C")) {
                         //coresToUse = Integer.parseInt(args[3]);
                     }
-                }else if(args.length>3){
-                    if (args[3].equals("-C")){
+                } else if (args.length > 3) {
+                    if (args[3].equals("-C")) {
                         //coresToUse = Integer.parseInt(args[4]);
                     }
                 }
 
 
-            }
-            else if(args[0].equals("-C")){
+            } else if (args[0].equals("-C")) {
                 //coresToUse = Integer.parseInt(args[1]);
 
-                if(args[2].equals("-S")){
-                    switch(args[3]) {
+                if (args[2].equals("-S")) {
+                    switch (args[3]) {
                         case "1":
                             //algToUse = Statics.algorithm.FCFS;
                             break;
                         case "2":
                             //algToUse = Statics.algorithm.RR;
-                            if(args.length == 5){
+                            if (args.length == 5) {
                                 //quantumTime = Integer.parseInt(args[4]);
                             }
                             break;
