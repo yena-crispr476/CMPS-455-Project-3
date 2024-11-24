@@ -1,14 +1,15 @@
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Dispatcher_Single implements Runnable{         // Will act as the ready queue for the algorithms. Must be Semaphore or lock protected.
-                                                            // TaskThread will act as a "CPU"
+    // TaskThread will act as a "CPU"
 
     private int algorithm_Choice;
-    private static int quantum;
+    static int quantum;
     static Semaphore queueSem = new Semaphore(1);
     static Semaphore processSem = new Semaphore(1);
     TaskThread task;
@@ -24,10 +25,10 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
     }
 
     /*
-    * Best to run the different algorithms in the Dispatcher class instead of as separate classes.
-    * Peek looks at the first item in the queue
-    * Poll looks at item and removes it from the queue.
-    * */
+     * Best to run the different algorithms in the Dispatcher class instead of as separate classes.
+     * Peek looks at the first item in the queue
+     * Poll looks at item and removes it from the queue.
+     * */
 
     public void FCFS_Single () {    // Completes processes to completion as they come in the queue. FIFO
         System.out.println("Dispatcher 0 \t | Running FCFS algorithm..");
@@ -92,6 +93,76 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         }
     }
 
+    // NSJF implementation
+    public void NSJF_Single() {
+        System.out.println("Dispatcher 0 \t | Running Non-Preemptive Shortest Job First (NSJF) algorithm...");
+
+        while (!ready_Queue.isEmpty()) {
+            try {
+                queueSem.acquireUninterruptibly();
+
+                // Sort ready queue by burst time (ascending)
+                TaskThread task = ready_Queue.stream()
+                        .min((t1, t2) -> Integer.compare(t1.getMaxBurstTime(), t2.getMaxBurstTime()))
+                        .orElse(null);
+
+                if (task != null) {
+                    ready_Queue.remove(task);
+                    System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: 0, MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
+                }
+
+                queueSem.release();
+
+                // Run the task to completion
+                processSem.acquireUninterruptibly();
+                task.run(task.getMaxBurstTime(), 0);  // run the full burst time
+                processSem.release();
+                System.out.println();
+
+            } catch (Exception e) {
+                System.out.println("The NSJF algorithm couldn't execute completely");
+            }
+        }
+        System.out.println("Main Thread \t | Exiting NSJF");
+    }
+
+    // PSJF implementation
+    public void PSJF_Single() {
+        System.out.println("Dispatcher 0 \t | Running Preemptive Shortest Job First (PSJF) algorithm...");
+
+        PriorityQueue<TaskThread> priorityQueue = new PriorityQueue<>((t1, t2) -> Integer.compare(t1.getMaxBurstTime(), t2.getMaxBurstTime()));
+
+        while (!ready_Queue.isEmpty() || !priorityQueue.isEmpty()) {
+            try {
+                // Always pick the shortest remaining task
+                queueSem.acquireUninterruptibly();
+
+                // Move tasks to priority queue
+                priorityQueue.addAll(ready_Queue);
+                ready_Queue.clear();
+
+                // Pick the task with the shortest burst time
+                TaskThread task = priorityQueue.poll();
+
+                if (task != null) {
+                    System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: 0, MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
+                }
+
+                queueSem.release();
+
+                // Preemptively process the task until it completes or quantum expires
+                processSem.acquireUninterruptibly();
+                task.run(task.getMaxBurstTime(), 0);  // run the full burst time
+                processSem.release();
+                System.out.println();
+
+            } catch (Exception e) {
+                System.out.println("The PSJF algorithm couldn't execute completely");
+            }
+        }
+        System.out.println("Main Thread \t | Exiting PSJF");
+    }
+
     public void threadCreation () {
 
         int burstTime;                  // Random between 1,50
@@ -121,7 +192,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         System.out.println("--------------------------------");
 
     }
-    
+
     @Override
     public void run() {
         //threadCreation();
@@ -145,13 +216,13 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                 break;
             case 3:
                 long start_NPSJF = System.currentTimeMillis();
-                // NPSJF
+                NSJF_Single();
                 long end_NPSJF = System.currentTimeMillis();
                 System.out.println("Total Completion Time: " + (end_NPSJF - start_NPSJF) + " milli-seconds.");
                 break;
             case 4:
                 long start_PSJF = System.currentTimeMillis();
-                // PSJF
+                PSJF_Single();
                 long end_PSJF = System.currentTimeMillis();
                 System.out.println("Total Completion Time: " + (end_PSJF - start_PSJF) + " milli-seconds.");
             default:
