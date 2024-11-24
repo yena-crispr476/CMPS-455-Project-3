@@ -20,13 +20,13 @@ public class Main {
                         break;
                     case "3":
                         //algToUse = Statics.algorithm.NSJF;
-                        Dispatcher_Single dispatcherNSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem);
+                        Dispatcher_Single dispatcherNSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem, 3);
                         Thread nsjfThread = new Thread(dispatcherNSJF);
                         nsjfThread.start();
                         break;
                     case "4":
                         //algToUse = Statics.algorithm.PSJF;
-                        Dispatcher_Single dispatcherPSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem);
+                        Dispatcher_Single dispatcherPSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem, 4);
                         Thread psjfThread = new Thread(dispatcherPSJF);
                         psjfThread.start();
                         break;

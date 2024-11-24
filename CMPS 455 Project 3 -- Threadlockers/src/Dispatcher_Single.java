@@ -18,10 +18,11 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     static Queue<TaskThread> ready_Queue = new LinkedList<>();
 
-    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem /*int algorithm*/) {
+    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem, int algorithmChoice) {
         this.ready_Queue = queue;
         this.quantum = quantum;
         this.queueSem = sem;
+        this.algorithm_Choice = algorithmChoice;  // Store the algorithm choice
     }
 
     /*
@@ -131,15 +132,26 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         System.out.println("Dispatcher 0 \t | Running Preemptive Shortest Job First (PSJF) algorithm...");
 
         PriorityQueue<TaskThread> priorityQueue = new PriorityQueue<>((t1, t2) -> Integer.compare(t1.getMaxBurstTime(), t2.getMaxBurstTime()));
+        long lastArrivalTime = System.currentTimeMillis(); // Track the last time we added a new task
 
+        // Loop while there are tasks in the ready queue or in the priority queue
         while (!ready_Queue.isEmpty() || !priorityQueue.isEmpty()) {
             try {
-                // Always pick the shortest remaining task
-                queueSem.acquireUninterruptibly();
+                // Periodically add a new task to the ready queue
+                if (System.currentTimeMillis() - lastArrivalTime > 1000) { // New task arrives every 1000 ms
+                    int burstTime = random.nextInt(1, 51);  // Random burst time between 1 and 50
+                    TaskThread newTask = new TaskThread(ready_Queue.size(), burstTime); // Create new task
+                    ready_Queue.add(newTask);  // Add to the ready queue
+                    lastArrivalTime = System.currentTimeMillis();  // Update last arrival time
 
-                // Move tasks to priority queue
+                    System.out.println("Main Thread \t | New task arrived: Task " + newTask.getID() + " with Burst Time: " + burstTime);
+                }
+
+                // Move tasks from the ready queue to the priority queue
+                queueSem.acquireUninterruptibly();
                 priorityQueue.addAll(ready_Queue);
                 ready_Queue.clear();
+                queueSem.release();
 
                 // Pick the task with the shortest burst time
                 TaskThread task = priorityQueue.poll();
@@ -148,11 +160,9 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                     System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: 0, MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
                 }
 
-                queueSem.release();
-
                 // Preemptively process the task until it completes or quantum expires
                 processSem.acquireUninterruptibly();
-                task.run(task.getMaxBurstTime(), 0);  // run the full burst time
+                task.run(task.getMaxBurstTime(), 0);  // Run the task to completion (preemptively)
                 processSem.release();
                 System.out.println();
 
@@ -160,6 +170,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                 System.out.println("The PSJF algorithm couldn't execute completely");
             }
         }
+
         System.out.println("Main Thread \t | Exiting PSJF");
     }
 
@@ -200,8 +211,8 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         System.out.println();
         displayQueue_i();
         System.out.println();
-        int algorithmNumber = 2;
-        switch (algorithmNumber) {
+
+        switch (algorithm_Choice) {
             case 1:
                 long start_FCFS = System.currentTimeMillis();
                 FCFS_Single();
@@ -231,11 +242,11 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     }
 
-    public static void main(String [] args) {
+    /*public static void main(String [] args) {
         Dispatcher_Single test = new Dispatcher_Single(ready_Queue, quantum, queueSem);
         Thread t = new Thread(test);
         t.start();
-    }
+    }*/
 
     public void reportThreadCreation () {
         int burstTime;
