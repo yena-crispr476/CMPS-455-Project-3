@@ -90,7 +90,7 @@ class Dispatcher implements Runnable {
 
         if (algorithm.equals("FCFS")) {
 
-            return readyQueue.remove(0); // First-come, first-served
+            return (Runnable) readyQueue.remove(0); // First-come, first-served
 
         } else if (algorithm.equals("RR")) {
 
@@ -108,7 +108,7 @@ class Dispatcher implements Runnable {
 
             // Select the task with the shortest burst time
 
-            Task shortestTask = readyQueue.stream()
+            Task shortestTask = (Task) readyQueue.stream()
 
                     .map(task -> (Task) task)
 
@@ -128,7 +128,7 @@ class Dispatcher implements Runnable {
 
 }
 
-public class SchedulerSimulation {
+public class Multi_Core_CPU_Task_Thread {
 
     public static void main(String[] args) {
 
