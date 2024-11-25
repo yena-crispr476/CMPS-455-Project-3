@@ -115,6 +115,13 @@ public class Dispatcher implements Runnable {
         this.timeQuantum = timeQuantum;
     }
 
+    public Dispatcher(List readyQueue, String schedulingAlgorithm, Semaphore semaphore, List<Task> readyQueue1, String algorithm, Semaphore semaphore1, int timeQuantum) {
+        this.readyQueue = readyQueue1;
+        this.algorithm = algorithm;
+        this.semaphore = semaphore1;
+        this.timeQuantum = timeQuantum;
+    }
+
     public void run() {
         while (!readyQueue.isEmpty()) {
             try {
@@ -150,6 +157,12 @@ public class Dispatcher implements Runnable {
         }
     }
 
+    private void runTaskUntilCompletion(Task task) {
+    }
+
+    private void runTaskForTimeQuantum(Task task) {
+    }
+
     private Task selectTask() {
         switch (algorithm) {
             case "FCFS":
@@ -176,6 +189,11 @@ public class Dispatcher implements Runnable {
                         .min(Comparator.comparingInt(Task::getBurstTime))
                         .orElse(null);
                 if (shortestTaskPSJF != null) readyQueue.remove(shortestTaskPS);
+                return shortestTaskPSJF;
+            default:
+                return null;
+        }
+    }
 public class Multi_Core_CPU {
 
     public static void main(String[] args) {
@@ -194,10 +212,11 @@ public class Multi_Core_CPU {
 
         String schedulingAlgorithm = args.length > 0 ? args[0] : "FCFS"; // Default algorithm
 
-        Dispatcher dispatcher = new Dispatcher(readyQueue, schedulingAlgorithm, semaphore);
+        Dispatcher dispatcher = new Dispatcher(readyQueue, schedulingAlgorithm, semaphore, , , , );
 
         new Thread(dispatcher).start(); // Start the dispatcher
 
     }
 
+}
 }
