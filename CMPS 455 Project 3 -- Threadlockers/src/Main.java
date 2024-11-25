@@ -42,7 +42,7 @@ public class Main {
                     case "2":
                        quantum = checkInput_Quantum(args[2]);
                        if (quantum >= 2 && quantum <=10) {
-                           Dispatcher_Single dispatcher_RR = new Dispatcher_Single(Dispatcher_Single.ready_Queue, 5, Dispatcher_Single.queueSem, 2);
+                           Dispatcher_Single dispatcher_RR = new Dispatcher_Single(Dispatcher_Single.ready_Queue, quantum, Dispatcher_Single.queueSem, 2);
                            Thread rrThread = new Thread(dispatcher_RR);
                            rrThread.start();
                        }

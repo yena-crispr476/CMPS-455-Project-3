@@ -20,7 +20,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem, int algorithmChoice) {
         ready_Queue = queue;
-        Dispatcher_Single.quantum = quantum;
+        this.quantum = quantum;
         this.queueSem = sem;
         this.algorithm_Choice = algorithmChoice;  // Store the algorithm choice
     }
@@ -61,8 +61,8 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         System.out.println("Main Thread \t | Exiting");
     }
 
-    public void RR_Single (int timeQuantum) {  // Complete in a FIFO manner, but each process executes until the time quantum is completed. Then place the thread back into the CPU for later execution
-        System.out.println("Dispatcher 0 \t | Running Round Robin algorithm. Time Quantum: " + timeQuantum);
+    public void RR_Single () {  // Complete in a FIFO manner, but each process executes until the time quantum is completed. Then place the thread back into the CPU for later execution
+        System.out.println("Dispatcher 0 \t | Running Round Robin algorithm. Time Quantum: " + quantum);
 
         while (!ready_Queue.isEmpty()) {
             try {
@@ -71,7 +71,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                 System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: 0, MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
                 queueSem.release();
                 if (task != null) {
-                    task.run(timeQuantum, 0);
+                    task.run(quantum, 0);
 
 
                     if (!task.getIsCompleted()) {
@@ -206,8 +206,8 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     @Override
     public void run() {
-        //threadCreation();
-        reportThreadCreation();
+        threadCreation();
+        //reportThreadCreation();
         System.out.println();
         displayQueue_i();
         System.out.println();
@@ -221,7 +221,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                 break;
             case 2:
                 long start_RR = System.currentTimeMillis();
-                RR_Single(5);
+                RR_Single();
                 long end_RR = System.currentTimeMillis();
                 System.out.println("Total Completion Time: " + (end_RR - start_RR) + " milli-seconds.");
                 break;
