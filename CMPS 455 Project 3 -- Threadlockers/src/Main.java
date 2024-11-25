@@ -1,16 +1,8 @@
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
-import java.util.concurrent.Semaphore;
+
 
 public class Main {
-    // Placeholder comment
 
-//    static Semaphore queueSem = new Semaphore(1);
-//    static Queue<TaskThread> ready_Queue = new LinkedList<>();
    static int quantum;
-//    static Random random = new Random();
-
     public static  int checkInput_Quantum (String input) {
         try {
             int value = Integer.parseInt(input);
