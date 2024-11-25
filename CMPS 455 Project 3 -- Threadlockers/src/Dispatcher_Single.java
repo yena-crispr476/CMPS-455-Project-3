@@ -1,8 +1,5 @@
 import java.awt.*;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.PriorityQueue;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 public class Dispatcher_Single implements Runnable{         // Will act as the ready queue for the algorithms. Must be Semaphore or lock protected.
@@ -10,6 +7,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     private int algorithm_Choice;
     static int quantum;
+    private int numCores;
     static Semaphore queueSem = new Semaphore(1);
     static Semaphore processSem = new Semaphore(1);
     TaskThread task;
@@ -18,12 +16,14 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     static Queue<TaskThread> ready_Queue = new LinkedList<>();
 
-    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem, int algorithmChoice) {
+    public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem, int algorithmChoice, int numCores) {
         ready_Queue = queue;
         this.quantum = quantum;
         this.queueSem = sem;
         this.algorithm_Choice = algorithmChoice;  // Store the algorithm choice
+        this.numCores = numCores;
     }
+
 
     /*
      * Best to run the different algorithms in the Dispatcher class instead of as separate classes.
@@ -33,13 +33,14 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     public void FCFS_Single () {    // Completes processes to completion as they come in the queue. FIFO
         System.out.println("Dispatcher 0 \t | Running FCFS algorithm..");
+        int coreIndex = 0;
         while (!ready_Queue.isEmpty()) {
             try {
                 queueSem.acquireUninterruptibly();
                 TaskThread task = ready_Queue.poll();
 
                 if (task != null) {
-                    System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: 0, MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
+                    System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: " + coreIndex + ", MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
                 }
                 queueSem.release();
 
@@ -47,9 +48,10 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                 for (int i = 0; i < task.getMaxBurstTime(); i++) {
                     //System.out.println("Proc Thread" + task.getID() + "\t | Using CPU 0; On Burst " + task.getCurrentBurstTime() + ".");
 
-                    task.run(1, 0);
+                    task.run(1, coreIndex);
                 }
                 processSem.release();
+                coreIndex = (coreIndex + 1) % numCores;
 
                 System.out.println();
 
@@ -64,14 +66,15 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
     public void RR_Single () {  // Complete in a FIFO manner, but each process executes until the time quantum is completed. Then place the thread back into the CPU for later execution
         System.out.println("Dispatcher 0 \t | Running Round Robin algorithm. Time Quantum: " + quantum);
 
+        int coreIndex = 0;
         while (!ready_Queue.isEmpty()) {
             try {
                 queueSem.acquireUninterruptibly();
                 TaskThread task = ready_Queue.poll();
-                System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: 0, MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
+                System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: " + coreIndex+ ", MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
                 queueSem.release();
                 if (task != null) {
-                    task.run(quantum, 0);
+                    task.run(quantum, coreIndex);
 
 
                     if (!task.getIsCompleted()) {
@@ -82,6 +85,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
                     else {
                         System.out.println("Proc. Thread " + task.getID() + "\t | Completed execution.");
                     }
+                    coreIndex = (coreIndex + 1) % numCores;
                     System.out.println();
                 } else {
                     System.out.println("Proc. Thread " + task.getID() + "\t | Completed execution.");
@@ -97,6 +101,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
     // NSJF implementation
     public void NSJF_Single() {
         System.out.println("Dispatcher 0 \t | Running Non-Preemptive Shortest Job First (NSJF) algorithm...");
+        int coreIndex = 0;
 
         while (!ready_Queue.isEmpty()) {
             try {
@@ -109,16 +114,17 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
                 if (task != null) {
                     ready_Queue.remove(task);
-                    System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: 0, MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
+                    System.out.println("Proc. Thread " + task.getID() + "\t | On CPU: "+ coreIndex+", MB = " + task.getMaxBurstTime() + ", CB = " + task.getCurrentBurstTime() + ", BT = " + task.getMaxBurstTime() + ", BG = " + task.getMaxBurstTime());
                 }
 
                 queueSem.release();
 
                 // Run the task to completion
                 processSem.acquireUninterruptibly();
-                task.run(task.getMaxBurstTime(), 0);  // run the full burst time
+                task.run(task.getMaxBurstTime(), coreIndex);  // run the full burst time
                 processSem.release();
                 System.out.println();
+                coreIndex = (coreIndex + 1) % numCores;
 
             } catch (Exception e) {
                 System.out.println("The NSJF algorithm couldn't execute completely");
@@ -129,7 +135,11 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
     // PSJF implementation
     public void PSJF_Single() {
-        System.out.println("Dispatcher 0 \t | Running Preemptive Shortest Job First (PSJF) algorithm...");
+        for (int i = 0; i < numCores; i++) {
+            System.out.println("Dispatcher " + i+" \t | Running Preemptive Shortest Job First (PSJF) algorithm...");
+        }
+        int coreIndex = 0;
+
 
         PriorityQueue<TaskThread> priorityQueue = new PriorityQueue<>((t1, t2) -> Integer.compare(t1.getMaxBurstTime(), t2.getMaxBurstTime()));
         long lastArrivalTime = System.currentTimeMillis(); // Track the last time we added a new task
@@ -162,9 +172,10 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
                 // Preemptively process the task until it completes or quantum expires
                 processSem.acquireUninterruptibly();
-                task.run(task.getMaxBurstTime(), 0);  // Run the task to completion (preemptively)
+                task.run(task.getMaxBurstTime(), coreIndex);  // Run the task to completion (preemptively)
                 processSem.release();
                 System.out.println();
+                coreIndex = (coreIndex + 1) % numCores;
 
             } catch (Exception e) {
                 System.out.println("The PSJF algorithm couldn't execute completely");
@@ -172,6 +183,17 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         }
 
         System.out.println("Main Thread \t | Exiting PSJF");
+    }
+
+    public void coreImplemntation (int numCores) {
+        TaskThread [] coreArray = new TaskThread[numCores];
+        for (int i = 0; i < numCores; i++) {
+            coreArray[i] = new TaskThread(i, quantum);
+        }
+        for (int i = 0; i < numCores; i++) {
+            Thread coreThread = new Thread(coreArray[i]);
+            coreThread.start();
+        }
     }
 
     public void threadCreation () {
@@ -185,8 +207,8 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         for (int i = 0; i < numThreads; i++) {
             burstTime = random.nextInt(1, 50);
             task = new TaskThread(i, burstTime);
-            Thread t = new Thread(task);
-            t.start();
+//            Thread t = new Thread(task);
+//            t.start();
             ready_Queue.add(task);
 
             System.out.println("Main Thread \t | Creating process thread " + i);
@@ -211,6 +233,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
         System.out.println();
         displayQueue_i();
         System.out.println();
+        coreImplemntation(numCores);
 
         switch (algorithm_Choice) {
             case 1:
