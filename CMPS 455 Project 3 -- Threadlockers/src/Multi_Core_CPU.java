@@ -175,7 +175,7 @@ public class Dispatcher implements Runnable {
                 Task shortestTaskPSJF = (Task) readyQueue.stream()
                         .min(Comparator.comparingInt(Task::getBurstTime))
                         .orElse(null);
-                if (shortestTaskPSJF != null) readyQueue.remove(shortestTaskPS
+                if (shortestTaskPSJF != null) readyQueue.remove(shortestTaskPS);
 public class Multi_Core_CPU {
 
     public static void main(String[] args) {
