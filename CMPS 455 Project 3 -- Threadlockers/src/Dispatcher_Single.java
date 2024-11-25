@@ -19,8 +19,8 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
     static Queue<TaskThread> ready_Queue = new LinkedList<>();
 
     public Dispatcher_Single (Queue <TaskThread> queue, int quantum, Semaphore sem, int algorithmChoice) {
-        this.ready_Queue = queue;
-        this.quantum = quantum;
+        ready_Queue = queue;
+        Dispatcher_Single.quantum = quantum;
         this.queueSem = sem;
         this.algorithm_Choice = algorithmChoice;  // Store the algorithm choice
     }
@@ -45,7 +45,7 @@ public class Dispatcher_Single implements Runnable{         // Will act as the r
 
                 processSem.acquireUninterruptibly();
                 for (int i = 0; i < task.getMaxBurstTime(); i++) {
-                    //System.out.println("Proc Thead" + task.getID() + "\t | Using CPU 0; On Burst " + task.getCurrentBurstTime() + ".");
+                    //System.out.println("Proc Thread" + task.getID() + "\t | Using CPU 0; On Burst " + task.getCurrentBurstTime() + ".");
 
                     task.run(1, 0);
                 }
