@@ -8,8 +8,20 @@ public class Main {
 
 //    static Semaphore queueSem = new Semaphore(1);
 //    static Queue<TaskThread> ready_Queue = new LinkedList<>();
-//    static int quantum;
+   static int quantum;
 //    static Random random = new Random();
+
+    public static  int checkInput_Quantum (String input) {
+        try {
+            int value = Integer.parseInt(input);
+            if (value >= 2 && value <=10) {
+                return value;
+            }
+        }catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please select a number between 2 - 10.");
+        }
+        return -1;
+    }
     public static void main(String[] args) {
 //        quantum = random.nextInt(2, 11);
 
@@ -28,11 +40,15 @@ public class Main {
 
                         break;
                     case "2":
-                       // if (args[2] == )
-                        //algToUse = Statics.algorithm.RR;
-                        Dispatcher_Single dispatcher_RR = new Dispatcher_Single(Dispatcher_Single.ready_Queue, 3,Dispatcher_Single.queueSem,1);
-                        Thread rrThread = new Thread(dispatcher_RR);
-                        rrThread.start();
+                       quantum = checkInput_Quantum(args[2]);
+                       if (quantum >= 2 && quantum <=10) {
+                           Dispatcher_Single dispatcher_RR = new Dispatcher_Single(Dispatcher_Single.ready_Queue, 5, Dispatcher_Single.queueSem, 2);
+                           Thread rrThread = new Thread(dispatcher_RR);
+                           rrThread.start();
+                       }
+                       else {
+                           System.out.println("Invalid input: Please input a number between 2-10.");
+                       }
 
                         if (args[3].equals("-C")) {
                             //quantumTime = Integer.parseInt(args[2]);
@@ -89,6 +105,7 @@ public class Main {
                             System.out.println("Wrong Input for Task #");
                     }
                 }
+                //Dispatcher(Dispatcher.readyqueue, args[/*Argument number*/], Dispatcher.semaphore);
 
             }
         } catch (Exception e) {
@@ -97,10 +114,5 @@ public class Main {
         //RunMain(algToUse, coresToUse, quantumTime);
     }
 
-    public int checkInput (int a) {
-        if (a >= 2 && a <= 10) {
-            return a;
-        }
-        return 1;
-    }
+
 }
