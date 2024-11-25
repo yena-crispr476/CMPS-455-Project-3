@@ -1,6 +1,17 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.Semaphore;
+
 public class Main {
     // Placeholder comment
+
+//    static Semaphore queueSem = new Semaphore(1);
+//    static Queue<TaskThread> ready_Queue = new LinkedList<>();
+//    static int quantum;
+//    static Random random = new Random();
     public static void main(String[] args) {
+//        quantum = random.nextInt(2, 11);
 
         try {
             if (args[0].equals("-S")) {
@@ -10,10 +21,19 @@ public class Main {
                 }
                 switch (args[1]) {
                     case "1":
+                        Dispatcher_Single dispatcher_FCFS = new Dispatcher_Single(Dispatcher_Single.ready_Queue, 0,Dispatcher_Single.queueSem,1);
+                        Thread fcfsThread = new Thread(dispatcher_FCFS);
+                        fcfsThread.start();
                         //algToUse = Statics.algorithm.FCFS;
+
                         break;
                     case "2":
+                       // if (args[2] == )
                         //algToUse = Statics.algorithm.RR;
+                        Dispatcher_Single dispatcher_RR = new Dispatcher_Single(Dispatcher_Single.ready_Queue, 3,Dispatcher_Single.queueSem,1);
+                        Thread rrThread = new Thread(dispatcher_RR);
+                        rrThread.start();
+
                         if (args[3].equals("-C")) {
                             //quantumTime = Integer.parseInt(args[2]);
                             //coresToUse = Integer.parseInt(args[4]);
@@ -75,5 +95,12 @@ public class Main {
             System.out.println("Wrong input, try again | Ex: \"-S # -C #\" or \"-C # -S #\" | Place a secondary number \"-S 2 #\" for RR Burst Time");
         }
         //RunMain(algToUse, coresToUse, quantumTime);
+    }
+
+    public int checkInput (int a) {
+        if (a >= 2 && a <= 10) {
+            return a;
+        }
+        return 1;
     }
 }
