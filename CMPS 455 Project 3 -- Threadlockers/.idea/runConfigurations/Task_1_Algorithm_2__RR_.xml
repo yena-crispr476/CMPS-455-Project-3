@@ -2,7 +2,7 @@
   <configuration default="false" name="Task 1 Algorithm 2 (RR)" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="Main" />
     <module name="CMPS 455 Project 3 -- Threadlockers" />
-    <option name="PROGRAM_PARAMETERS" value="-S 2 9" />
+    <option name="PROGRAM_PARAMETERS" value="-S 2 9 -C 3" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

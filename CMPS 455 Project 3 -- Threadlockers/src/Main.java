@@ -42,7 +42,11 @@ public class Main {
                 }
                 switch (args[1]) {
                     case "1":
-                        Dispatcher_Single dispatcher_FCFS = new Dispatcher_Single(Dispatcher_Single.ready_Queue, 0,Dispatcher_Single.queueSem,1, 1);
+                        numCores=1;
+                        if (args[2].equals("-C")) {
+                            numCores = checkInput_Core(args[3]);
+                        }
+                        Dispatcher_Single dispatcher_FCFS = new Dispatcher_Single(Dispatcher_Single.ready_Queue, 0,Dispatcher_Single.queueSem,1, numCores);
                         Thread fcfsThread = new Thread(dispatcher_FCFS);
                         fcfsThread.start();
                         //algToUse = Statics.algorithm.FCFS;
@@ -52,6 +56,7 @@ public class Main {
                        quantum = checkInput_Quantum(args[2]);
 
 
+                        int numCores = 1;
                         if (args[3].equals("-C")) {
                             numCores = checkInput_Core(args[4]);
                         }
@@ -64,16 +69,26 @@ public class Main {
                            System.out.println("Invalid input: Please input a number between 2-10.");
                        }
 
+
+
                         break;
                     case "3":
                         //algToUse = Statics.algorithm.NSJF;
-                        Dispatcher_Single dispatcherNSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem, 3,1);
+                        numCores=1;
+                        if (args[2].equals("-C")) {
+                            numCores = checkInput_Core(args[3]);
+                        }
+                        Dispatcher_Single dispatcherNSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem, 3,numCores);
                         Thread nsjfThread = new Thread(dispatcherNSJF);
                         nsjfThread.start();
                         break;
                     case "4":
                         //algToUse = Statics.algorithm.PSJF;
-                        Dispatcher_Single dispatcherPSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem, 4,1);
+                        numCores=1;
+                        if (args[2].equals("-C")) {
+                            numCores = checkInput_Core(args[3]);
+                        }
+                        Dispatcher_Single dispatcherPSJF = new Dispatcher_Single(Dispatcher_Single.ready_Queue, Dispatcher_Single.quantum, Dispatcher_Single.queueSem, 4,numCores);
                         Thread psjfThread = new Thread(dispatcherPSJF);
                         psjfThread.start();
                         break;
@@ -102,6 +117,7 @@ public class Main {
                             fcfsThread.start();
                             break;
                         case "2":
+                            quantum = checkInput_Quantum(args[4]);
                             if (quantum >= 2 && quantum <=10) {
                                 Dispatcher_Single dispatcher_RR = new Dispatcher_Single(Dispatcher_Single.ready_Queue, quantum, Dispatcher_Single.queueSem, 2, numCores);
                                 Thread rrThread = new Thread(dispatcher_RR);
